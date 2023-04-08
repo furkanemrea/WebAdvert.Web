@@ -1,0 +1,73 @@
+﻿@page
+@using Microsoft.AspNetCore.Antiforgery;
+@model WebAdvert.Web.Pages.Accounts.LoginModel
+@{
+}
+@inject IAntiforgery antiforgery
+@{
+    var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+
+
+<input name="__RequestVerificationToken" type="hidden" value="@token" />
+
+<div class="row">
+    <div class="col-md-4">
+        <h4>Login using your email address and password</h4>
+        <h5>
+            <a asp-controller="Accounts" asp-action="Signup">
+                If you are not a member you can sign up here
+            </a>
+        </h5>
+        <hr />
+            <div class="form-group">
+                <label >Email</label>
+                <input id="Email" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label >Password</label>
+                <input id="Password" class="form-control" />
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label >Remember Me</label>
+                    <input type="checkbox" id="RememberMe" class="form-control"/>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary"> Login </button>
+    </div>
+</div>
+<script>
+    $('button').on('click', function () {
+        var email = $("#Email").val();
+        var password = $("#Password").val();
+        var rememberMe = $("#RememberMe").val();
+        var requestObject = { email, password, rememberMe };
+        $.ajax({
+            type: "POST",
+            url: "/accounts/login",
+            data: requestObject,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                if (response && response.succeeded) {
+                    window.location.href = '/';
+                } else {
+                    if (response) {
+                        alert(response.errors.join("-"))
+                    }
+                }
+            },
+            failure: function (response) {
+                alert('error!');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    })
+</script>

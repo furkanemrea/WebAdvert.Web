@@ -1,0 +1,65 @@
+﻿@page
+@using Microsoft.AspNetCore.Antiforgery;
+@model WebAdvert.Web.Pages.Accounts.SignupModel
+@inject IAntiforgery antiforgery
+@{
+    var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+
+
+<input name="__RequestVerificationToken" type="hidden" value="@token" />
+<div class="row">
+    <div class="col-md-4">
+        <h4>Create a new User</h4>
+        <hr />
+        <div class="form-group">
+            <label>Email </label>
+            <input id="Email" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Password </label>
+            <input id="Password" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>ConfirmPassword </label>
+            <input id="ConfirmPassword" class="form-control" />
+        </div>
+        <button class="btn btn-defailt">Submit</button>
+    </div>
+    
+</div>
+
+<script>
+
+    $('button').on('click', function () {
+        var email = $("#Email").val();
+        var password = $("#Password").val();
+        var confirmPassword = $("#ConfirmPassword").val();
+        var requestObject = { email, password, confirmPassword };
+        $.ajax({
+            type: "POST",
+            url: "/accounts/signup",
+            data: requestObject,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                if (response && response.succeeded){
+                    window.location.href='/accounts/confirm';
+                }
+            },
+            failure: function (response) {
+                alert('error!');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    })
+
+
+
+</script>
