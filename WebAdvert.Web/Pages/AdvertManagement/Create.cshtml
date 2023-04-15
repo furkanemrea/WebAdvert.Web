@@ -1,0 +1,75 @@
+﻿@page
+@using Microsoft.AspNetCore.Antiforgery;
+@model WebAdvert.Web.Pages.AdvertManagement.CreateModel
+@{
+}
+@inject IAntiforgery antiforgery
+@{
+    var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+<script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+
+
+<input name="__RequestVerificationToken" type="hidden" value="@token" />
+
+<div class="form-group">
+    <label>Title</label>
+    <input type="text" class="form-control" id="title" />
+</div>
+<div class="form-group">
+    <label>Description</label>
+    <input type="text" class="form-control" id="description" />
+</div>
+<div class="form-group">
+    <label>Price</label>
+    <input type="text" class="form-control" id="price" />
+</div>
+<div class="form-group mt-3">
+    <input type="file" id="fileInput" class="form-control" />
+</div>
+<div class="form-group mt-2">
+    <button class="btn btn-sm btn-primary mt-3">Create</button>
+</div>
+
+
+<script>
+    $('button').on('click', function () {
+        var formData = new FormData();
+        var fileValue = $('#fileInput')[0].files[0];
+
+        var title = $("#title").val();
+        var description = $("#description").val();
+        var price = $("#price").val();
+
+        formData.append("formFile", fileValue);
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("price", price);
+
+        $.ajax({
+            type: "POST",
+            url: "/advertmanagement/create",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            success: function (response) {
+                if (response) {
+                    alert("Succeeded");
+                } else {
+                    alert("Error");
+                }
+            },
+            failure: function (response) {
+                alert('error!');
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    })
+
+</script>

@@ -1,6 +1,35 @@
+using Microsoft.IdentityModel.Tokens;
+using Polly;
+using Polly.Extensions.Http;
+using System.Reflection;
+using System.Security.AccessControl;
+using WebAdvert.Web.Configurations.Mappers;
+using WebAdvert.Web.ServiceClients;
+using WebAdvert.Web.ServiceClients.Abstraction;
+using WebAdvert.Web.Services.Abstract;
+using WebAdvert.Web.Services.Concrete;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+#region Create Circuit Breaker Pattern
+
+IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPattern()
+{
+    return HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .CircuitBreakerAsync(3, TimeSpan.FromSeconds(30));
+}
+
+IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+{
+    return HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+        .WaitAndRetryAsync(retryCount: 3, sleepDurationProvider: retryAttempy => TimeSpan.FromSeconds(Math.Pow(2, retryAttempy)));
+}
+
+#endregion
+
 builder.Services.AddRazorPages();
 builder.Services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
 
@@ -24,6 +53,14 @@ builder.Services.ConfigureApplicationCookie(option =>
     option.LoginPath = "/Accounts/Login";
 });
 
+builder.Services.AddHttpClient<IAdvertApiClient, AdvertApiClient>()
+    .AddPolicyHandler(GetRetryPolicy())
+    .AddPolicyHandler(GetCircuitBreakerPattern());
+
+
+builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(AdvertProfile)));
+
+builder.Services.AddTransient<IFileUploader, S3FileUploader>();
 
 
 var app = builder.Build();

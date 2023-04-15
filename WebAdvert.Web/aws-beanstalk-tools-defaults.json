@@ -1,0 +1,20 @@
+
+{
+    "region" : "eu-central-1",
+    "configuration" : "Debug",
+    "framework"     : "net6.0",
+    "self-contained" : false,
+    "application"    : "WebAdvertWeb",
+    "environment"    : "advert-web",
+    "enable-xray"    : false,
+    "enhanced-health-type" : "basic",
+    "additional-options"   : "\"aws:autoscaling:launchconfiguration,SecurityGroups\"=\"sg-010102078722d72bc\";\"aws:ec2:vpc,Subnets\"=\"subnet-0d05b81a9939468a7\"",
+    "solution-stack"       : "64bit Amazon Linux 2 v2.5.2 running .NET Core",
+    "environment-type"     : "SingleInstance",
+    "cname"                : "advert-web",
+    "instance-type"        : "t3a.medium",
+    "key-pair"             : "furkan",
+    "instance-profile"     : "aws-elasticbeanstalk-ec2-role",
+    "service-role"         : "aws-elasticbeanstalk-service-role",
+    "proxy-server"         : "nginx"
+}
