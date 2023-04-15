@@ -24,7 +24,7 @@ namespace WebAdvert.Web.Pages.AdvertManagement
         }
 
         public void OnGet()
-        {
+        { 
         }
 
         public async Task<IActionResult> OnPost(CreateAdvertManagementModel requestModel)
